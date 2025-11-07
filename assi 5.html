@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment 3</title>
+</head>
+<body>
+  <h2>Assignment 3</h2>
+
+  <h3>i. Two Numbers Operations</h3>
+  <input type="number" id="num1" placeholder="Enter first number">
+  <input type="number" id="num2" placeholder="Enter second number">
+  <button onclick="calculate()">Calculate</button>
+  <p id="result1"></p>
+
+  <h3>ii. Array Operations</h3>
+  <button onclick="arrayOperations()">Run Array Program</button>
+  <p id="result2"></p>
+
+  <h3>iii. Form Validation</h3>
+  <form id="myForm" onsubmit="return validateForm()">
+    <input type="text" id="name" placeholder="Enter name"><br><br>
+    <input type="email" id="email" placeholder="Enter email"><br><br>
+    <input type="number" id="age" placeholder="Enter age"><br><br>
+    <button type="submit">Submit</button>
+  </form>
+  <p id="result3"></p>
+
+  <h3>iv. Student Object</h3>
+  <button onclick="studentInfo()">Show Student Info</button>
+  <p id="result4"></p>
+
+  <h3>v. Array Function (map, reduce, filter)</h3>
+  <button onclick="arrayMethods()">Run Function</button>
+  <p id="result5"></p>
+
+  <script>
+    function calculate() {
+      let a = parseFloat(document.getElementById('num1').value);
+      let b = parseFloat(document.getElementById('num2').value);
+      let sum = a + b;
+      let diff = a - b;
+      let prod = a * b;
+      let quot = b !== 0 ? a / b : 'Infinity';
+      document.getElementById('result1').innerText =
+        Sum: ${sum}, Difference: ${diff}, Product: ${prod}, Quotient: ${quot};
+    }
+
+    function arrayOperations() {
+      let arr = [10, 5, 8, 3, 15];
+      let largest = Math.max(...arr);
+      let smallest = Math.min(...arr);
+      let ascending = [...arr].sort((a, b) => a - b);
+      let descending = [...arr].sort((a, b) => b - a);
+      document.getElementById('result2').innerText =
+        Array: [${arr}], Largest: ${largest}, Smallest: ${smallest}, Ascending: [${ascending}], Descending: [${descending}];
+    }
+
+    function validateForm() {
+      let name = document.getElementById('name').value.trim();
+      let email = document.getElementById('email').value.trim();
+      let age = parseInt(document.getElementById('age').value);
+      let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+      if (name === '') {
+        document.getElementById('result3').innerText = 'Name cannot be empty.';
+        return false;
+      }
+      if (!email.match(emailPattern)) {
+        document.getElementById('result3').innerText = 'Invalid email format.';
+        return false;
+      }
+      if (isNaN(age) || age < 18 || age > 100) {
+        document.getElementById('result3').innerText = 'Age must be between 18 and 100.';
+        return false;
+      }
+      document.getElementById('result3').innerText = 'Form submitted successfully!';
+      return false;
+    }
+
+    function studentInfo() {
+      let student = { name: 'John', age: 20, grade: 'B' };
+      student.class = '12A';
+      student.grade = 'A';
+      let info = Name: ${student.name}, Age: ${student.age}, Grade: ${student.grade}, Class: ${student.class};
+      document.getElementById('result4').innerText = info;
+    }
+
+    function arrayMethods() {
+      let arr = [1, 2, 3, 4, 5, 6];
+      let even = arr.filter(n => n % 2 === 0);
+      let multiplied = even.map(n => n * 2);
+      let sum = multiplied.reduce((acc, val) => acc + val, 0);
+      document.getElementById('result5').innerText =
+        Original: [${arr}], Even: [${even}], Multiplied: [${multiplied}], Sum: ${sum};
+    }
+  </script>
+</body>
+</html>

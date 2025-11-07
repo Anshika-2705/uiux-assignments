@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Packages</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f5f5f5;
+  }
+
+  nav {
+    display: flex;
+    gap: 20px;
+    background: #004aad;
+    padding: 10px 20px;
+  }
+
+  nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  nav a.active {
+    border-bottom: 2px solid yellow;
+  }
+
+  h2 {
+    color: #004aad;
+    text-align: center;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #fff;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+  }
+
+  th {
+    background-color: #004aad;
+    color: #fff;
+  }
+
+  form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 30px;
+  }
+
+  label {
+    display: block;
+    margin: 10px 0 5px;
+  }
+
+  input, select, button {
+    padding: 8px;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  #total {
+    font-weight: bold;
+    color: #004aad;
+  }
+
+  .gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+  }
+
+  .gallery img {
+    width: 180px;
+    height: 120px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal img {
+    width: 60%;
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="active">Home</a>
+  <a href="#">Packages</a>
+  <a href="#">Gallery</a>
+</nav>
+
+<h2>Available Packages</h2>
+<table id="packageTable">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Destination</th>
+      <th>Duration (Days)</th>
+      <th>Base Price ($)</th>
+      <th>Season</th>
+      <th>Final Price ($)</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<h2>Booking Estimator</h2>
+<form id="bookingForm">
+  <label for="package">Select Package</label>
+  <select id="package">
+    <option value="">Choose...</option>
+  </select>
+
+  <label for="checkIn">Check-In Date</label>
+  <input type="date" id="checkIn">
+
+  <label for="checkOut">Check-Out Date</label>
+  <input type="date" id="checkOut">
+
+  <label for="guests">Guests</label>
+  <input type="number" id="guests" placeholder="Number of guests">
+
+  <label for="promo">Promo Code</label>
+  <input type="text" id="promo" placeholder="Enter promo code">
+
+  <button type="button" onclick="calculateTotal()">Estimate Price</button>
+  <p id="total"></p>
+</form>
+
+<h2>Gallery</h2>
+<div class="gallery">
+  <img src="img1-thumb.jpg" data-large="img1-large.jpg" alt="Beach">
+  <img src="img2-thumb.jpg" data-large="img2-large.jpg" alt="Mountains">
+  <img src="img3-thumb.jpg" data-large="img3-large.jpg" alt="City">
+</div>
+
+<div class="modal" id="modal">
+  <img id="modalImg" src="">
+</div>
+
+<script>
+  const packages = [
+    { id: 1, destination: "Goa", durationDays: 4, basePrice: 500, season: "peak" },
+    { id: 2, destination: "Manali", durationDays: 5, basePrice: 450, season: "off" },
+    { id: 3, destination: "Kerala", durationDays: 6, basePrice: 600, season: "peak" },
+    { id: 4, destination: "Jaipur", durationDays: 3, basePrice: 400, season: "off" }
+  ];
+
+  function calculateFinalPrice(pkg) {
+    let multiplier = pkg.season === "peak" ? 1.2 : 1.0;
+    let weekendSurcharge = pkg.durationDays > 4 ? 1.1 : 1.0;
+    return pkg.basePrice * multiplier * weekendSurcharge;
+  }
+
+  function renderPackages() {
+    const tbody = document.querySelector("#packageTable tbody");
+    const select = document.querySelector("#package");
+    tbody.innerHTML = "";
+    select.innerHTML += packages.map(p => <option value="${p.id}">${p.destination}</option>).join("");
+    packages.forEach(pkg => {
+      const row = document.createElement("tr");
+      let finalPrice = calculateFinalPrice(pkg);
+      row.innerHTML = `
+        <td>${pkg.id}</td>
+        <td>${pkg.destination}</td>
+        <td>${pkg.durationDays}</td>
+        <td>${pkg.basePrice}</td>
+        <td>${pkg.season}</td>
+        <td>${finalPrice.toFixed(2)}</td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  function calculateTotal() {
+    const pkgId = document.getElementById("package").value;
+    const checkIn = new Date(document.getElementById("checkIn").value);
+    const checkOut = new Date(document.getElementById("checkOut").value);
+    const guests = parseInt(document.getElementById("guests").value) || 1;
+    const promo = document.getElementById("promo").value.trim().toUpperCase();
+    const totalEl = document.getElementById("total");
+
+    if (!pkgId || !checkIn || !checkOut || checkOut <= checkIn) {
+      totalEl.textContent = "Please fill all fields correctly.";
+      return;
+    }
+
+    const nights = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
+    const pkg = packages.find(p => p.id == pkgId);
+    let pricePerNight = calculateFinalPrice(pkg);
+    let total = pricePerNight * nights;
+    if (guests > 2) total *= 1.2;
+    switch (promo) {
+      case "EARLYBIRD": total *= 0.9; break;
+      case "FESTIVE": total *= 0.85; break;
+    }
+    totalEl.textContent = Estimated Total: $${total.toFixed(2)};
+  }
+
+  const galleryImages = document.querySelectorAll(".gallery img");
+  const modal = document.getElementById("modal");
+  const modalImg = document.getElementById("modalImg");
+
+  galleryImages.forEach(img => {
+    img.addEventListener("click", () => {
+      modal.style.display = "flex";
+      modalImg.src = img.dataset.large;
+    });
+  });
+
+  modal.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  const navLinks = document.querySelectorAll("nav a");
+  navLinks.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      navLinks.forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+    });
+  });
+
+  renderPackages();
+</script>
+
+</body>
+</html>
